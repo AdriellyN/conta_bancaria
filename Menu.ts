@@ -1,30 +1,31 @@
 import readlinesync = require("readline-sync");
-import {colors} from "./src/util/Cores"; 
+import { colors } from "./src/util/Cores";
 import { ContaCorrente } from "./src/model/ContaCorrente";
 import { ContaPoupanca } from "./src/model/ContaPoupanca";
+import { ContaController } from "./src/controller/ContaController";
 
 export function main() {
-    let opcao: number;
 
-    //Contas correntes
-    const cc1 = new ContaCorrente(3, 789, 1,"Andressa", 100000, 1000);
-    cc1.visualizar();
-    
-    // Saque na Conta Corrente
-    cc1.sacar(100500);
-    cc1.visualizar();
+    let opcao, numero, agencia, tipo, saldo, limite, aniversario: number;
+    let titular: string;
 
-    // Depósito na Conta Corrente
-    cc1.depositar(2000);
-    cc1.visualizar();
+    const tipoContas = ['Conta Corrente', 'Conta Poupança'];
 
-    const cp1 = new ContaPoupanca(4, 789, 2, "Andrew", 10500, 29);
-    cp1.visualizar();
+    // Criando um Objeto da Classe Conta Controller
+    const contas = new ContaController();
+
+    //Novas Instâncias da Classe ContaCorrente (Objetos)
+    contas.cadastrar(new ContaCorrente(contas.gerarNumero(), 1234, 1, 'Amanda Magro', 1000000.00, 100000.00));
+    contas.cadastrar(new ContaCorrente(contas.gerarNumero(), 4578, 1, 'João da Silva', 1000.00, 100.00));
+
+    // Novas Instâncias da Classe ContaPoupança (Objetos)
+    contas.cadastrar(new ContaPoupanca(contas.gerarNumero(), 5789, 2, "Geana Almeida", 10000, 10));
+    contas.cadastrar(new ContaPoupanca(contas.gerarNumero(), 5698, 2, "Jean Lima", 15000, 15));
 
     console.log('');
 
     while (true) {
-        console.log(colors.bg.black, colors.fg.red, 
+        console.log(colors.fg.redstrong,
             "**********************************************************************");
         console.log("                                                                      ");
         console.log("                        BANCO FUTURO DO BRASIL                        ");
@@ -49,53 +50,98 @@ export function main() {
         opcao = readlinesync.questionInt("");
 
         if (opcao == 9) {
-            console.log("\nBanco Futuro do Brasil - O seu futuro começa aqui!");
+            console.log(colors.fg.whitestrong, "\nBanco Futuro do Brasil - O seu futuro começa aqui!", colors.reset);
             sobre();
             process.exit(0);
         }
 
         switch (opcao) {
             case 1:
-                console.log("\n\nCriar Conta\n\n");
+                console.log(colors.fg.whitestrong, "\n\nCriar Conta\n\n", colors.reset);
 
+                console.log("Digite o Número da Agência: ");
+                agencia = readlinesync.questionInt('');
+
+                console.log("Digite o Nome do Titular: ");
+                titular = readlinesync.question('');
+
+                console.log("Escolha o Tipo da Conta: ");
+                tipo = readlinesync.keyInSelect(tipoContas, "", { cancel: false }) + 1;
+
+                console.log("Digite o Saldo da Conta: ")
+                saldo = readlinesync.questionFloat('');
+
+                switch (tipo) {
+                    case 1:
+                        console.log("Digite o Limite da Conta: ")
+                        limite = readlinesync.questionFloat('');
+                        contas.cadastrar(new ContaCorrente(contas.gerarNumero(), agencia, tipo, titular, saldo, limite));
+                        break;
+                    case 2:
+                        console.log("Digite o Dia do Aniversário da Agência: ");
+                        aniversario = readlinesync.questionInt('');
+                        contas.cadastrar(new ContaPoupanca(contas.gerarNumero(), agencia, tipo, titular, saldo, aniversario));
+                        break;
+                }
+                keyPress();
                 break;
+
+
             case 2:
-                console.log("\n\nListar todas as Contas\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nListar todas as Contas\n\n", colors.reset);
+                    contas.listarTodas();
+                keyPress();
                 break;
+
+
             case 3:
-                console.log("\n\nConsultar dados da Conta - por número\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nConsultar dados da Conta - por número\n\n", colors.reset);
+                    console.log("Digite o número da conta: ");
+                    numero = readlinesync.questionInt('');
+                    contas.procurarPorNumero(numero);
+                keyPress();
                 break;
+
+
             case 4:
-                console.log("\n\nAtualizar dados da Conta\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nAtualizar dados da Conta\n\n", colors.reset);
+                keyPress();
                 break;
+
+
             case 5:
-                console.log("\n\nApagar uma Conta\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nApagar uma Conta\n\n", colors.reset);
+                keyPress();
                 break;
+
+
             case 6:
-                console.log("\n\nSaque\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nSaque\n\n", colors.reset);
+                keyPress();
                 break;
+
+
             case 7:
-                console.log("\n\nDepósito\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nDepósito\n\n", colors.reset);
+                keyPress();
                 break;
+
+
             case 8:
-                console.log("\n\nTransferência entre Contas\n\n");
-
+                console.log(colors.fg.whitestrong, "\n\nTransferência entre Contas\n\n", colors.reset);
+                keyPress();
                 break;
-            default:
-                console.log("\nOpção Inválida!\n")
 
+
+            default:
+                console.log(colors.fg.whitestrong, "\nOpção Inválida!\n", colors.reset)
+                keyPress();
                 break;
         }
     }
 }
 
-export function sobre() : void{
+export function sobre(): void {
     console.log("\n**********************************************************************");
     console.log("Projeto Desenvolvido por: ");
     console.log("Adrielly do Nascimento - adriellynr@gmail.com");
@@ -103,5 +149,10 @@ export function sobre() : void{
     console.log("\n**********************************************************************");
 }
 
+function keyPress(): void {
+    console.log(colors.reset, "");
+    console.log("\nPressione enter para continuar...");
+    readlinesync.prompt();
+}
 
 main();
