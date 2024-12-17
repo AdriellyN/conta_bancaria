@@ -1,13 +1,22 @@
 import { Conta } from "../model/Conta";
 import { ContaRepository } from "../repository/ContaRepository";
 
-export class ContaController implements ContaRepository{
+export class ContaController implements ContaRepository {
 
     // Coleção Array que vai armazenar os Objetos Conta
     private listaContas = new Array<Conta>();
 
     // Controlar os Números das Contas
     public numero: number = 0;
+
+    procurarPorTitular(titular: string): void {
+        // Filtragem dos dados
+        let buscarPorTitular = this.listaContas.filter(conta =>
+            conta.titular.toUpperCase().includes(titular.toUpperCase()));
+
+        // Listagem de Dados
+        buscarPorTitular.forEach( conta => conta.visualizar());
+    }
 
     procurarPorNumero(numero: number): void {
         const buscaConta = this.buscarNoArray(numero)
@@ -17,7 +26,7 @@ export class ContaController implements ContaRepository{
             console.log('\nConta não Encontrada!')
     }
     listarTodas(): void {
-        for(let conta of this.listaContas){
+        for (let conta of this.listaContas) {
             conta.visualizar();
         }
     }
@@ -27,7 +36,7 @@ export class ContaController implements ContaRepository{
     }
     atualizar(conta: Conta): void {
         const buscaConta = this.buscarNoArray(conta.numero)
-        if (buscaConta !== null){
+        if (buscaConta !== null) {
             this.listaContas[this.listaContas.indexOf(buscaConta)] = conta;
             console.log("A Conta foi atualizada com sucesso!")
         }
@@ -36,34 +45,58 @@ export class ContaController implements ContaRepository{
     }
     deletar(numero: number): void {
         const buscaConta = this.buscarNoArray(numero)
-        
-        if (buscaConta !== null){
+
+        if (buscaConta !== null) {
             this.listaContas.splice(this.listaContas.indexOf(buscaConta), 1);
             console.log("A Conta foi deletada com sucesso!")
         }
         else
             console.log('\nConta não Encontrada!')
     }
+
+    // Métodos Bancários
     sacar(numero: number, valor: number): void {
-        throw new Error("*   *   *   *   *   *   *   *   *   *");
+        const buscaConta = this.buscarNoArray(numero)
+
+        if (buscaConta !== null) {
+            if (buscaConta.sacar(valor) === true)
+                console.log("O Saque foi efetuado com sucesso!");
+        }
+        else
+            console.log('\nConta não Encontrada!')
     }
     depositar(numero: number, valor: number): void {
-        throw new Error("*   *   *   *   *   *   *   *   *   *");
+        const buscaConta = this.buscarNoArray(numero)
+
+        if (buscaConta !== null) {
+            buscaConta.depositar(valor);
+            console.log("O Depósito foi efetuado com sucesso!");
+        }
+        else
+            console.log('\nConta não Encontrada!');
     }
     transferir(numeroOrigem: number, numeroDestino: number, valor: number): void {
-        throw new Error("Method not implemented.");
+        const contaOrigem = this.buscarNoArray(numeroOrigem);
+        const contaDestino = this.buscarNoArray(numeroDestino);
+
+        if (contaOrigem !== null && contaDestino !== null) {
+            if (contaOrigem.sacar(valor) === true) {
+                contaDestino.depositar(valor);
+                console.log("A Transferência Bancária foi efetuada com sucesso!"); // ----------------------------------
+            }
+        }
     }
 
     // Métodos Auxiliares
 
     //Gera números de conta
-    public gerarNumero(): number{
+    public gerarNumero(): number {
         return ++this.numero;
     }
 
-    public buscarNoArray(numero: number) : Conta | null{
-        for (let conta of this.listaContas){
-            if(conta.numero === numero)
+    public buscarNoArray(numero: number): Conta | null {
+        for (let conta of this.listaContas) {
+            if (conta.numero === numero)
                 return conta;
         }
 
